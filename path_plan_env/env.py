@@ -25,11 +25,12 @@ __all__ = ["DynamicPathPlanning", "StaticPathPlanning", "NormalizedActionsWrappe
 
 #----------------------------- ↓↓↓↓↓ 地图设置 ↓↓↓↓↓ ------------------------------#
 class MAP:
-    size = [[-10.0, -10.0], [10.0, 10.0]] # x, z最小值; x, z最大值
-    start_pos = [0, -9]                   # 起点坐标
+    size = [[-13.0, -13.0], [13.0, 13.0]] # x, z最小值; x, z最大值
+    start_pos = [-10, -5]                   # 起点坐标
     end_pos = [2.5, 9]                    # 终点坐标
     obstacles = [                         # 障碍物, 要求为 geo.Polygon 或 带buffer的 geo.Point/geo.LineString
-        geo.Point(0, 2.5).buffer(4),
+        geo.Point(-3, 3.5).buffer(3.5),
+        geo.Point(5, 2.5).buffer(3),
         geo.Point(-6, -5).buffer(3),
         geo.Point(6, -5).buffer(3),
         geo.Polygon([(-10, 0), (-10, 5), (-7.5, 5), (-7.5, 0)])
@@ -89,7 +90,7 @@ OBS_STATE_HIGH = [1.414*max(STATE_HIGH[0]-STATE_LOW[0], STATE_HIGH[1]-STATE_LOW[
 CTRL_LOW = [-0.02, -0.005] # 切向过载 + 速度滚转角(单位rad/s)
 CTRL_HIGH = [0.02, 0.005]  # 切向过载 + 速度滚转角(单位rad/s)
 # 雷达设置
-SCAN_RANGE = 2.5 # 扫描距离
+SCAN_RANGE = 4 # 扫描距离
 SCAN_ANGLE = 128 # 扫描范围(单位deg)
 SCAN_NUM = 128   # 扫描点个数
 SCAN_CEN = 48    # 中心区域index开始位置(小于SCAN_NUM/2)
@@ -363,7 +364,7 @@ class DynamicPathPlanning(gym.Env):
             with plt.ion():
                 fig = plt.figure("render", figsize=figsize)
             ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-            MAP.plot(ax, "Path Plan Environment")
+            MAP.plot(ax, "动态路径规划环境")
             self.__plt_car_path, = ax.plot([], [], 'k-.')
             self.__plt_car_point = ax.scatter([], [], s=15, c='b',  marker='o', label='Agent')
             self.__plt_targ_range, = ax.plot([], [], 'g:', linewidth=1.0)
@@ -707,18 +708,43 @@ class StaticPathPlanning(gym.Env):
         # 绘制
         for o in self.map.obstacles:
             plot_polygon(o, facecolor='w', edgecolor='k', add_points=False)
-        plt.scatter(self.map.start_pos[0], self.map.start_pos[1], s=30, c='k', marker='x', label='起点')
-        plt.scatter(self.map.end_pos[0], self.map.end_pos[1], s=30, c='k', marker='o', label='终点')
+        plt.scatter(self.map.start_pos[0], self.map.start_pos[1], s=30, c='k', marker='o', label='起点')
+        plt.scatter(self.map.end_pos[0], self.map.end_pos[1], s=30, c='k', marker='x', label='终点')
         traj = self.map.start_pos + self.obs.tolist() + self.map.end_pos # [x,y,x,y,x,y,]
         plt.plot(traj[::2], traj[1::2], label='path', color='b')
         # 设置信息
-        plt.title('Path Search Environment')
+        plt.title('路径规划环境')
         plt.legend(loc='best')
         plt.xlabel("x")
         plt.ylabel("z")
         plt.grid(alpha=0.3, ls=':')
         # 关闭窗口
         plt.pause(0.001)
+        plt.ioff()
+        
+    def show_map(self, mode="human"):
+        """环境可视化,只展示地图"""
+        if self.__render_not_called:
+            self.__render_not_called = False
+            plt.ion() # 打开交互绘图, 只能开一次
+        # 创建窗口
+        plt.clf()
+        plt.axis('equal')
+        plt.xlim(self.map.size[0][0], self.map.size[1][0])
+        plt.ylim(self.map.size[1][1], self.map.size[0][1]) # NOTE min/max调换顺序可反转坐标轴
+        # 绘制
+        for o in self.map.obstacles:
+            plot_polygon(o, facecolor='w', edgecolor='k', add_points=False)
+        plt.scatter(self.map.start_pos[0], self.map.start_pos[1], s=30, c='k', marker='o', label='起点')
+        plt.scatter(self.map.end_pos[0], self.map.end_pos[1], s=30, c='k', marker='x', label='终点')
+        # 设置信息
+        plt.title('路径规划环境')
+        plt.legend(loc='best')
+        plt.xlabel("x")
+        plt.ylabel("z")
+        plt.grid(alpha=0.3, ls=':')
+        # 关闭窗口
+        plt.pause(180)
         plt.ioff()
 
     def close(self):
@@ -775,6 +801,7 @@ class NormalizedActionsWrapper(gym.ActionWrapper):
 if __name__ == '__main__':
     # MAP.show()
     env = DynamicPathPlanning()
+    # env = StaticPathPlanning()
     for ep in range(10):
         print(f"episode{ep}: begin")
         obs = env.reset()

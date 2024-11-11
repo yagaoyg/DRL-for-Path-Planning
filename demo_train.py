@@ -6,7 +6,6 @@
  
  @auther: HJ https://github.com/zhaohaojie1998
 """
-#
 
 
 '''算法定义'''
@@ -136,12 +135,15 @@ critic = SAC_Critic(
 agent = SAC_Agent(env)
 agent.set_buffer(buffer)
 agent.set_nn(actor, critic)
-agent.cuda()
+agent.cuda(0)
+# agent.cpu()
 
 
 
 '''训练LOOP''' 
 MAX_EPISODE = 2000
+agent.load("./checkpoint/static_model")
+print('加载')
 for episode in range(MAX_EPISODE):
     ## 重置回合奖励
     ep_reward = 0
@@ -149,6 +151,8 @@ for episode in range(MAX_EPISODE):
     obs = env.reset()
     ## 进行一回合仿真
     for steps in range(env.max_episode_steps):
+        # 可视化
+        # env.render()
         # 决策
         act = agent.select_action(obs)
         # 仿真
@@ -165,37 +169,15 @@ for episode in range(MAX_EPISODE):
             break
         else:
             obs = deepcopy(next_obs)
-    #end for
-#end for
-agent.export("./path_plan_env/policy_static.onnx") # 导出策略模型
+    # end for
+    
+    if episode % 25 == 0:
+        agent.save("./checkpoint/static_model")
+        print('暂存')
+# end for
+
+agent.export("./path_plan_env/my_static.onnx") # 导出策略模型
+print('导出')
 # agent.save("./checkpoint") # 存储算法训练进度
 # agent.load("./checkpoint") # 加载算法训练进度
 
-
-
-
-
-
-
-r'''
-                           _ooOoo_
-                          o8888888o
-                          88" . "88
-                          (| -_- |)
-                          O\  =  /O
-                       ____/`---'\____
-                     .'  \\|     |//  `.
-                    /  \\|||  :  |||//  \
-                   /  _||||| -:- |||||-  \
-                   |   | \\\  -  /// |   |
-                   | \_|  ''\---/''  |   |
-                   \  .-\__  `-`  ___/-. /
-                 ___`. .'  /--.--\  `. . __
-              ."" '<  `.___\_<|>_/___.'  >'"".
-             | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-             \  \ `-.   \_ __\ /__ _/   .-` /  /
-        ======`-.____`-.___\_____/___.-`____.-'======
-                           `=---='
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                    佛祖保佑       永无BUG
-'''

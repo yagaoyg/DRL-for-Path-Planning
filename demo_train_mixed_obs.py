@@ -208,6 +208,12 @@ log = SummaryWriter(log_dir = "./tb_log")
 MAX_EPISODE = 50000
 LEARN_FREQ = 100
 OUTPUT_FREQ = 50
+
+# agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
+# print('加载进度')
+
+print('开始训练...')
+
 for episode in range(MAX_EPISODE):
     ## 重置回合奖励
     ep_reward = 0
@@ -238,36 +244,13 @@ for episode in range(MAX_EPISODE):
         train_info = agent.learn()
     if episode % OUTPUT_FREQ == 0:
         env.plot(f"./output/out{episode}.png")
+    # 储存进度
+    if episode % 25 == 0: 
+        agent.save("./checkpoint/dynamic_model")
+        print('暂存')
 #end for
-agent.export("./path_plan_env/policy_dynamic.onnx") # 导出策略模型
+
+agent.export("./path_plan_env/my_dynamic.onnx") # 导出策略模型
 # agent.save("./checkpoint") # 存储算法训练进度
 # agent.load("./checkpoint") # 加载算法训练进度
 
-
-
-
-
-
-
-r'''
-                           _ooOoo_
-                          o8888888o
-                          88" . "88
-                          (| -_- |)
-                          O\  =  /O
-                       ____/`---'\____
-                     .'  \\|     |//  `.
-                    /  \\|||  :  |||//  \
-                   /  _||||| -:- |||||-  \
-                   |   | \\\  -  /// |   |
-                   | \_|  ''\---/''  |   |
-                   \  .-\__  `-`  ___/-. /
-                 ___`. .'  /--.--\  `. . __
-              ."" '<  `.___\_<|>_/___.'  >'"".
-             | | :  `- \`.;`\ _ /`;.`/ - ` : | |
-             \  \ `-.   \_ __\ /__ _/   .-` /  /
-        ======`-.____`-.___\_____/___.-`____.-'======
-                           `=---='
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                    佛祖保佑       永无BUG
-'''
