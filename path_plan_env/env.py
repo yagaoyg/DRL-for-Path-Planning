@@ -25,7 +25,7 @@ __all__ = ["DynamicPathPlanning", "StaticPathPlanning", "NormalizedActionsWrappe
 
 #----------------------------- ↓↓↓↓↓ 地图设置 ↓↓↓↓↓ ------------------------------#
 class MAP:
-    size = [[-13.0, -13.0], [13.0, 13.0]] # x, z最小值; x, z最大值
+    size = [[-14.0, -14.0], [14.0, 14.0]] # x, z最小值; x, z最大值
     start_pos = [-10, -5]                   # 起点坐标
     end_pos = [2.5, 9]                    # 终点坐标
     obstacles = [                         # 障碍物, 要求为 geo.Polygon 或 带buffer的 geo.Point/geo.LineString
@@ -33,7 +33,11 @@ class MAP:
         geo.Point(5, 2.5).buffer(3),
         geo.Point(-6, -5).buffer(3),
         geo.Point(6, -5).buffer(3),
-        geo.Polygon([(-10, 0), (-10, 5), (-7.5, 5), (-7.5, 0)])
+        geo.Polygon([(-10, 0), (-10, 5), (-7.5, 5), (-7.5, 0)]),
+        geo.Polygon([(-14, -14), (-13, -14), (-13, 14), (-14, 14)]),
+        geo.Polygon([(14, -14), (13, -14), (13, 14), (14, 14)]),
+        geo.Polygon([(-14, 13), (-14, 14), (14, 14), (14, 13)]),
+        geo.Polygon([(-14, -13), (-14, -14), (14, -14), (14, -13)]),
     ]
 
     @classmethod
@@ -77,7 +81,7 @@ class Logger:
 
 # 运动速度设置
 V_LOW = 0.05 # 最小速度
-V_HIGH = 0.2 # 最大速度
+V_HIGH = 0.3 # 最大速度
 V_MIN = V_LOW + 0.03  # 惩罚区间下限(大于V_LOW)
 V_MAX = V_HIGH - 0.03 # 惩罚区间上限(小于V_HIGH)
 # 质心动力学状态设置

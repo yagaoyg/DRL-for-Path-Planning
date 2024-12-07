@@ -205,12 +205,12 @@ agent.cuda()
 from torch.utils.tensorboard import SummaryWriter # TensorBoard, 启动!!!
 log = SummaryWriter(log_dir = "./tb_log") 
 
-MAX_EPISODE = 50000
+MAX_EPISODE = 2000
 LEARN_FREQ = 100
 OUTPUT_FREQ = 50
 
-# agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
-# print('加载进度')
+agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
+print('加载进度')
 
 print('开始训练...')
 
@@ -221,6 +221,8 @@ for episode in range(MAX_EPISODE):
     obs = env.reset()
     ## 进行一回合仿真
     for steps in range(env.max_episode_steps):
+        # 可视化
+        # env.render()
         # 决策
         act = agent.select_action(obs)
         # 仿真
