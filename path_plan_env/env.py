@@ -25,7 +25,7 @@ __all__ = ["DynamicPathPlanning", "StaticPathPlanning", "NormalizedActionsWrappe
 
 #----------------------------- ↓↓↓↓↓ 地图设置 ↓↓↓↓↓ ------------------------------#
 class MAP:
-    size = [[-14.0, -14.0], [14.0, 14.0]] # x, z最小值; x, z最大值
+    size = [[-13.0, -13.0], [13.0, 13.0]] # x, z最小值; x, z最大值
     start_pos = [-10, -5]                   # 起点坐标
     end_pos = [2.5, 9]                    # 终点坐标
     obstacles = [                         # 障碍物, 要求为 geo.Polygon 或 带buffer的 geo.Point/geo.LineString
@@ -33,7 +33,11 @@ class MAP:
         geo.Point(5, 2.5).buffer(3),
         geo.Point(-6, -5).buffer(3),
         geo.Point(6, -5).buffer(3),
+        
         geo.Polygon([(-10, 0), (-10, 5), (-7.5, 5), (-7.5, 0)]),
+        geo.Polygon([(2, 8), (2, 10), (10, 10), (10, 8)]),
+        geo.Polygon([(-1, -10), (-1, -6), (1, -4), (1, -10)]),
+        
         geo.Polygon([(-14, -14), (-13, -14), (-13, 14), (-14, 14)]),
         geo.Polygon([(14, -14), (13, -14), (13, 14), (14, 14)]),
         geo.Polygon([(-14, 13), (-14, 14), (14, 14), (14, 13)]),
@@ -94,14 +98,14 @@ OBS_STATE_HIGH = [1.414*max(STATE_HIGH[0]-STATE_LOW[0], STATE_HIGH[1]-STATE_LOW[
 CTRL_LOW = [-0.02, -0.005] # 切向过载 + 速度滚转角(单位rad/s)
 CTRL_HIGH = [0.02, 0.005]  # 切向过载 + 速度滚转角(单位rad/s)
 # 雷达设置
-SCAN_RANGE = 4 # 扫描距离
+SCAN_RANGE = 3 # 扫描距离
 SCAN_ANGLE = 128 # 扫描范围(单位deg)
 SCAN_NUM = 128   # 扫描点个数
 SCAN_CEN = 48    # 中心区域index开始位置(小于SCAN_NUM/2)
 # 距离设置
-D_SAFE = 0.5 # 碰撞半径
+D_SAFE = 0.3 # 碰撞半径
 D_BUFF = 1.0 # 缓冲距离(大于D_SAFE)
-D_ERR = 0.5  # 目标误差距离
+D_ERR = 0.6  # 目标误差距离
 # 序列观测长度
 TIME_STEP = 4
 
@@ -264,9 +268,9 @@ class DynamicPathPlanning(gym.Env):
         d_min = min([*point1[point1>-0.5], np.inf])
         if d_min <= D_BUFF:
             rew += d_min/D_BUFF - 1 # -1~0
-        # 3.接近目标奖励 {-1.5, 2.0}
+        # 3.接近目标奖励 {-1.5, 2.5}
         D = self.deque_vector[-1][0]
-        rew += 2.0 if D < self.D_last else -1.5
+        rew += 2.5 if D < self.D_last else -1.5
         # 4.速度保持奖励 [-1, 0]
         V = self.deque_vector[-1][1]
         if V < V_MIN:
@@ -280,13 +284,13 @@ class DynamicPathPlanning(gym.Env):
         done = False
         info = {'state': 'none'}
         if d_min < D_SAFE: # 碰撞
-            rew -= 150
+            rew -= 200
             done = True
             info['state'] = 'fail'
         elif D < D_ERR: # 成功
             η = np.nanmax([3.5 - 2.5*self.L/(self.D_init+1e-8), 0.5]) # 航程折扣 (实现路径最短)
             # NOTE max返回nan, 输入为*args或ListLike; np.nanmax返回除了nan的max, 输入只能为ListLike
-            rew += 200 * η # 100~700+
+            rew += 300 * η # 100~700+
             done = True
             info['state'] = 'sucess'
         if V < V_MIN or V > V_MAX or d_min < D_BUFF:
@@ -397,6 +401,45 @@ class DynamicPathPlanning(gym.Env):
         self.__plt_lidar_right.set_data([x, x2], [y, y2])
         # 窗口暂停
         plt.pause(0.001)
+        
+    def show_map(self, mode="human", figsize=[8,8]):
+        """只显示地图"""
+        """测试时可视化环境, 和step交替调用 (不要和plot一起调用, 容易卡)"""
+        # 创建绘图窗口
+        if self.__render_not_called:
+            self.__render_not_called = False
+            with plt.ion():
+                fig = plt.figure("render", figsize=figsize)
+            ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+            MAP.plot(ax, "动态路径规划环境")
+            self.__plt_car_path, = ax.plot([], [], 'k-.')
+            self.__plt_car_point = ax.scatter([], [], s=15, c='b',  marker='o', label='Agent')
+            self.__plt_targ_range, = ax.plot([], [], 'g:', linewidth=1.0)
+            self.__plt_targ_point = ax.scatter([], [], s=15, c='g', marker='o', label='Target')
+            self.__plt_lidar_scan, = ax.plot([], [], 'ro', markersize=1.5, label='Points')
+            self.__plt_lidar_left, = ax.plot([], [], 'c--', linewidth=0.5)
+            self.__plt_lidar_right, = ax.plot([], [], 'c--', linewidth=0.5)
+            ax.legend(loc='best').set_draggable(True)
+        # 绘图
+        # self.__plt_car_path.set_data(np.array(self.log.path).T) # [xxxxyyyy]
+        # self.__plt_car_point.set_offsets(self.log.path[-1])     # [xyxyxyxy]
+        # θ = np.linspace(0, 2*np.pi, 18)
+        # self.__plt_targ_range.set_data(self.log.end_pos[0]+D_ERR*np.cos(θ), self.log.end_pos[1]+D_ERR*np.sin(θ))
+        # self.__plt_targ_point.set_offsets(self.log.end_pos)
+        # if self.log.curr_scan_pos:
+        #     points = np.array(self.log.curr_scan_pos)
+        #     self.__plt_lidar_scan.set_data(points[:, 0], points[:, 1])
+        # else:
+        #     self.__plt_lidar_scan.set_data([], [])
+        # x, y, yaw = *self.log.path[-1], self.log.yaw[-1]
+        # x1 = x + self.lidar.max_range * np.cos(-yaw + np.deg2rad(self.lidar.scan_angle/2))
+        # x2 = x + self.lidar.max_range * np.cos(-yaw - np.deg2rad(self.lidar.scan_angle/2))
+        # y1 = y + self.lidar.max_range * np.sin(-yaw + np.deg2rad(self.lidar.scan_angle/2))
+        # y2 = y + self.lidar.max_range * np.sin(-yaw - np.deg2rad(self.lidar.scan_angle/2))
+        # self.__plt_lidar_left.set_data([x, x1], [y, y1])
+        # self.__plt_lidar_right.set_data([x, x2], [y, y2])
+        # 窗口暂停
+        plt.pause(180)
 
     def close(self): 
         """关闭环境"""
@@ -415,8 +458,8 @@ class DynamicPathPlanning(gym.Env):
         ax3 = fig.add_subplot(gs[1, 0])
         ax4 = fig.add_subplot(gs[1, 1])
         MAP.plot(ax1, "Trajectory")
-        ax1.scatter(*self.log.path[0], s=30, c='k', marker='x', label='start')
-        ax1.scatter(*self.log.end_pos, s=30, c='k', marker='o', label='target')
+        ax1.scatter(*self.log.path[0], s=30, c='k', marker='o', label='起点')
+        ax1.scatter(*self.log.end_pos, s=30, c='k', marker='x', label='终点')
         ax1.plot(*np.array(self.log.path).T, color='b', label='path') # [xxxxyyyy]
         ax1.legend(loc="best").set_draggable(True)
         ax2.set_title("Control Signal")

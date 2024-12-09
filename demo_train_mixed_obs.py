@@ -15,6 +15,8 @@ import torch as th
 import torch.nn as nn
 from copy import deepcopy
 from sac_agent import *
+from datetime import datetime
+
 # 1.定义经验回放（取决于观测和动作数据结构）
 class Buffer(BaseBuffer):
     def __init__(self, memory_size, obs_space, act_space):
@@ -179,7 +181,7 @@ act_space = env.action_space
 
 '''实例化算法'''
 # 1.缓存设置
-buffer = Buffer(100000, obs_space, act_space)
+buffer = Buffer(120000, obs_space, act_space)
 
 # 2.神经网络设置
 actor = SAC_Actor(
@@ -194,7 +196,7 @@ critic = SAC_Critic(
     )
 
 # 3.算法设置
-agent = SAC_Agent(env, batch_size=2048)
+agent = SAC_Agent(env, batch_size=4096)
 agent.set_buffer(buffer)
 agent.set_nn(actor, critic)
 agent.cuda()
@@ -203,9 +205,11 @@ agent.cuda()
 
 '''训练LOOP'''
 from torch.utils.tensorboard import SummaryWriter # TensorBoard, 启动!!!
-log = SummaryWriter(log_dir = "./tb_log") 
+TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S/}".format(datetime.now())
+train_log_dir = './tb_log/' + TIMESTAMP
+log = SummaryWriter(log_dir = train_log_dir) 
 
-MAX_EPISODE = 2000
+MAX_EPISODE = 4000
 LEARN_FREQ = 100
 OUTPUT_FREQ = 50
 
@@ -213,6 +217,9 @@ agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
 print('加载进度')
 
 print('开始训练...')
+
+# 累计成功次数
+sc = 0 
 
 for episode in range(MAX_EPISODE):
     ## 重置回合奖励
@@ -234,6 +241,8 @@ for episode in range(MAX_EPISODE):
         if info["terminal"]:
             mean_reward = ep_reward / (steps + 1)
             print('回合: ', episode,'| 累积奖励: ', round(ep_reward, 2),'| 平均奖励: ', round(mean_reward, 2),'| 状态: ', info,'| 步数: ', steps) 
+            if info['state'] == 'sucess':
+                sc += 1
             break
         else:
             obs = deepcopy(next_obs)
@@ -250,9 +259,10 @@ for episode in range(MAX_EPISODE):
     if episode % 25 == 0: 
         agent.save("./checkpoint/dynamic_model")
         print('暂存')
+        print('累计成功次数',sc)
 #end for
 
-agent.export("./path_plan_env/my_dynamic.onnx") # 导出策略模型
+# agent.export("./path_plan_env/my_dynamic.onnx") # 导出策略模型
 # agent.save("./checkpoint") # 存储算法训练进度
 # agent.load("./checkpoint") # 加载算法训练进度
 

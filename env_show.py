@@ -1,4 +1,4 @@
-from path_plan_env import StaticPathPlanning, NormalizedActionsWrapper
-env = NormalizedActionsWrapper(StaticPathPlanning())
+from path_plan_env import DynamicPathPlanning
+env = DynamicPathPlanning(800)
 
 env.show_map()

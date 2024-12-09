@@ -43,5 +43,5 @@ for episode in range(MAX_EPISODE):
         else:
             obs = deepcopy(next_obs)
     #end for
-    # time.sleep(2)
+    time.sleep(0.5)
 #end for

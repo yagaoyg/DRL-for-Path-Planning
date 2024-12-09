@@ -256,9 +256,9 @@ class SAC_Agent:
         env: GymEnv,                # gym环境 或 cfg参数
         *,
         gamma: float = 0.99,        # 折扣因子 γ
-        alpha: float = 0.4,         # 温度系数 α
+        alpha: float = 0.3,         # 温度系数 α
         batch_size: int = 1024,      # 样本容量
-        update_after: int = 2000,   # 训练开始，batch_size <= update_after <= memory_size
+        update_after: int = 6000,   # 训练开始，batch_size <= update_after <= memory_size
 
         lr_decay_period: int = None, # 学习率衰减周期, None不衰减
         lr_critic: float = 1e-3,     # Q 学习率
@@ -269,7 +269,7 @@ class SAC_Agent:
 
         adaptive_alpha: bool = True,     # 是否自适应温度系数
         target_entropy: float = None,    # 自适应温度系数目标熵, 默认: -dim(A)
-        lr_alpha: float = 1e-3,          # α 学习率
+        lr_alpha: float = 2e-3,          # α 学习率
         alpha_optim_cls = th.optim.Adam, # α 优化器类型
 
         device: DeviceLike = th.device("cuda" if th.cuda.is_available() else "cpu"), # 计算设备
