@@ -211,7 +211,7 @@ train_log_dir = './tb_log/' + TIMESTAMP
 log = SummaryWriter(log_dir = train_log_dir) 
 
 MAX_EPISODE = 4000
-LEARN_FREQ = 100
+LEARN_FREQ = 50
 OUTPUT_FREQ = 50
 
 agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
@@ -242,7 +242,7 @@ for episode in range(MAX_EPISODE):
         if info["terminal"]:
             mean_reward = ep_reward / (steps + 1)
             print('回合: ', episode,'| 累积奖励: ', round(ep_reward, 2),'| 平均奖励: ', round(mean_reward, 2),'| 状态: ', info,'| 步数: ', steps) 
-            if info['state'] == 'sucess':
+            if info['state'] == '成功':
                 sc += 1
             break
         else:
