@@ -270,7 +270,7 @@ class DynamicPathPlanning(gym.Env):
             rew += d_min/D_BUFF - 1 # -1~0
         # 3.接近目标奖励 {-1.5, 2.5}
         D = self.deque_vector[-1][0]
-        rew += 2.5 if D < self.D_last else -1.5
+        rew += 2.8 if D < self.D_last else -1.5
         # 4.速度保持奖励 [-1, 0]
         V = self.deque_vector[-1][1]
         if V < V_MIN:
@@ -286,13 +286,13 @@ class DynamicPathPlanning(gym.Env):
         if d_min < D_SAFE: # 碰撞
             rew -= 200
             done = True
-            info['state'] = 'fail'
+            info['state'] = '失败'
         elif D < D_ERR: # 成功
             η = np.nanmax([3.5 - 2.5*self.L/(self.D_init+1e-8), 0.5]) # 航程折扣 (实现路径最短)
             # NOTE max返回nan, 输入为*args或ListLike; np.nanmax返回除了nan的max, 输入只能为ListLike
-            rew += 300 * η # 100~700+
+            rew += 200 * η # 100~700+
             done = True
-            info['state'] = 'sucess'
+            info['state'] = '成功'
         if V < V_MIN or V > V_MAX or d_min < D_BUFF:
             rew -= 5
         # 更新记忆
@@ -322,7 +322,7 @@ class DynamicPathPlanning(gym.Env):
         #         truncated = True
         elif self.D_last > self.observation_space["seq_vector"].high[-1][0]:
             truncated = True
-        # 更新航程/状态/唱跳rap篮球
+        # 更新航程/状态/控制
         self.L += np.linalg.norm(new_state[:2] - self.state[:2])
         self.state = deepcopy(new_state)
         self.ctrl = deepcopy(u)
@@ -336,8 +336,8 @@ class DynamicPathPlanning(gym.Env):
             self.__need_reset = True
         else:
             info["terminal"] = False
-        info["reward"] = rew
-        info["time_step"] = self.time_step
+        # info["reward"] = rew
+        # info["time_step"] = self.time_step
         info["voyage"] = self.L
         info["distance"] = self.D_last
         # 记录
@@ -420,24 +420,6 @@ class DynamicPathPlanning(gym.Env):
             self.__plt_lidar_left, = ax.plot([], [], 'c--', linewidth=0.5)
             self.__plt_lidar_right, = ax.plot([], [], 'c--', linewidth=0.5)
             ax.legend(loc='best').set_draggable(True)
-        # 绘图
-        # self.__plt_car_path.set_data(np.array(self.log.path).T) # [xxxxyyyy]
-        # self.__plt_car_point.set_offsets(self.log.path[-1])     # [xyxyxyxy]
-        # θ = np.linspace(0, 2*np.pi, 18)
-        # self.__plt_targ_range.set_data(self.log.end_pos[0]+D_ERR*np.cos(θ), self.log.end_pos[1]+D_ERR*np.sin(θ))
-        # self.__plt_targ_point.set_offsets(self.log.end_pos)
-        # if self.log.curr_scan_pos:
-        #     points = np.array(self.log.curr_scan_pos)
-        #     self.__plt_lidar_scan.set_data(points[:, 0], points[:, 1])
-        # else:
-        #     self.__plt_lidar_scan.set_data([], [])
-        # x, y, yaw = *self.log.path[-1], self.log.yaw[-1]
-        # x1 = x + self.lidar.max_range * np.cos(-yaw + np.deg2rad(self.lidar.scan_angle/2))
-        # x2 = x + self.lidar.max_range * np.cos(-yaw - np.deg2rad(self.lidar.scan_angle/2))
-        # y1 = y + self.lidar.max_range * np.sin(-yaw + np.deg2rad(self.lidar.scan_angle/2))
-        # y2 = y + self.lidar.max_range * np.sin(-yaw - np.deg2rad(self.lidar.scan_angle/2))
-        # self.__plt_lidar_left.set_data([x, x1], [y, y1])
-        # self.__plt_lidar_right.set_data([x, x2], [y, y2])
         # 窗口暂停
         plt.pause(180)
 

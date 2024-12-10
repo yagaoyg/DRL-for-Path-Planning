@@ -200,6 +200,7 @@ agent = SAC_Agent(env, batch_size=4096)
 agent.set_buffer(buffer)
 agent.set_nn(actor, critic)
 agent.cuda()
+# agent.cpu()
 
 
 

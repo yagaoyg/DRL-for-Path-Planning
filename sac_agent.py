@@ -257,12 +257,12 @@ class SAC_Agent:
         *,
         gamma: float = 0.99,        # 折扣因子 γ
         alpha: float = 0.3,         # 温度系数 α
-        batch_size: int = 1024,      # 样本容量
+        batch_size: int = 2048,      # 样本容量
         update_after: int = 6000,   # 训练开始，batch_size <= update_after <= memory_size
 
         lr_decay_period: int = None, # 学习率衰减周期, None不衰减
-        lr_critic: float = 1e-3,     # Q 学习率
-        lr_actor: float = 1e-3,      # π 学习率
+        lr_critic: float = 2e-3,     # Q 学习率
+        lr_actor: float = 2e-3,      # π 学习率
         tau: float = 0.005,          # target Q 软更新系数 τ
         q_loss_cls = nn.MSELoss,     # Q 损失函数类型(use_per=True时该设置无效)
         grad_clip: float = None,     # Q网络梯度裁剪范围, None不裁剪
