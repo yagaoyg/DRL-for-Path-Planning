@@ -101,7 +101,7 @@ CTRL_HIGH = [0.02, 0.005]  # 切向过载 + 速度滚转角(单位rad/s)
 SCAN_RANGE = 3 # 扫描距离
 SCAN_ANGLE = 128 # 扫描范围(单位deg)
 SCAN_NUM = 128   # 扫描点个数
-SCAN_CEN = 48    # 中心区域index开始位置(小于SCAN_NUM/2)
+SCAN_CEN = 40    # 中心区域index开始位置(小于SCAN_NUM/2)
 # 距离设置
 D_SAFE = 0.3 # 碰撞半径
 D_BUFF = 1.0 # 缓冲距离(大于D_SAFE)

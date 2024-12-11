@@ -173,7 +173,7 @@ class PiNet(nn.Module):
 
 '''实例化环境'''
 from path_plan_env import DynamicPathPlanning
-env = DynamicPathPlanning()
+env = DynamicPathPlanning(dt=0.3)
 obs_space = env.observation_space
 act_space = env.action_space
 
