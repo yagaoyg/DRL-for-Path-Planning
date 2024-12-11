@@ -258,7 +258,7 @@ class SAC_Agent:
         gamma: float = 0.99,        # 折扣因子 γ
         alpha: float = 0.3,         # 温度系数 α
         batch_size: int = 2048,      # 样本容量
-        update_after: int = 6000,   # 训练开始，batch_size <= update_after <= memory_size
+        update_after: int = 8000,   # 训练开始，batch_size <= update_after <= memory_size
 
         lr_decay_period: int = None, # 学习率衰减周期, None不衰减
         lr_critic: float = 2e-3,     # Q 学习率
