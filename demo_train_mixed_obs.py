@@ -214,8 +214,9 @@ MAX_EPISODE = 4000
 LEARN_FREQ = 50
 OUTPUT_FREQ = 50
 
-agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
 print('加载进度')
+# agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
+
 
 print('开始训练...')
 
