@@ -173,7 +173,7 @@ class PiNet(nn.Module):
 
 '''实例化环境'''
 from path_plan_env import DynamicPathPlanning
-env = DynamicPathPlanning(dt=0.3)
+env = DynamicPathPlanning()
 obs_space = env.observation_space
 act_space = env.action_space
 
@@ -202,6 +202,8 @@ agent.set_nn(actor, critic)
 agent.cuda()
 # agent.cpu()
 
+import warnings
+warnings.filterwarnings("ignore", message=".*internal t.*")
 
 
 '''训练LOOP'''

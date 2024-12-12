@@ -15,7 +15,7 @@ from gym import spaces
 from copy import deepcopy
 from pathlib import Path
 from collections import deque
-from scipy.integrate import odeint
+from scipy.integrate import odeint,solve_ivp
 from shapely import geometry as geo
 from shapely.plotting import plot_polygon
 
@@ -554,10 +554,16 @@ class DynamicPathPlanning(gym.Env):
     def _ode45(cls, s_old, u, dt):
         """微分方程积分"""
         s_new = odeint(cls._fixed_wing_2d, s_old, (0.0, dt), args=(u, )) # shape=(len(t), len(s))
+        # s_new = solve_ivp(cls._fixed_wing_2d,y0=s_old,t_span=(0.0, dt),args=(u, ))
         x, z, V, ψ = s_new[-1]
         V = np.clip(V, V_LOW, V_HIGH)
         ψ = cls._limit_angle(ψ)
         return np.array([x, z, V, ψ], dtype=np.float32) # deepcopy
+    
+    ''' lsoda--  warning..internal t (=r1) and h (=r2) are
+       such that in the machine, t + h = t on the next step  
+       (h = step size). solver will continue anyway
+      in above,  r1 =  0.2688897115231D+00   r2 =  0.1173167047774D-16'''
 
     
 
