@@ -212,7 +212,7 @@ TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S/}".format(datetime.now())
 train_log_dir = './tb_log/' + TIMESTAMP
 log = SummaryWriter(log_dir = train_log_dir) 
 
-MAX_EPISODE = 4000
+MAX_EPISODE = 350
 LEARN_FREQ = 50
 OUTPUT_FREQ = 50
 
@@ -233,7 +233,7 @@ for episode in range(MAX_EPISODE):
     ## 进行一回合仿真
     for steps in range(env.max_episode_steps):
         # 可视化
-        # env.render()
+        env.render()
         # 决策
         act = agent.select_action(obs)
         # 仿真
