@@ -212,7 +212,7 @@ TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S/}".format(datetime.now())
 train_log_dir = './tb_log/' + TIMESTAMP
 log = SummaryWriter(log_dir = train_log_dir) 
 
-MAX_EPISODE = 250
+MAX_EPISODE = 201
 LEARN_FREQ = 50
 OUTPUT_FREQ = 50
 
