@@ -261,9 +261,9 @@ for episode in range(MAX_EPISODE):
     if episode % OUTPUT_FREQ == 0:
         env.plot(f"./output/out{episode}.png")
     # 储存进度
-    if episode % 25 == 0: 
-        agent.save("./checkpoint/dynamic_model")
-        # agent.save(f"./checkpoint/temp_dynamic_model/{episode}")
+    if episode % 50 == 0: 
+        # agent.save("./checkpoint/dynamic_model")
+        agent.save(f"./checkpoint/temp_dynamic_model/{episode}")
         print('暂存')
         print('累计成功次数',sc)
 #end for
