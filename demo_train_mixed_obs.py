@@ -217,8 +217,8 @@ LEARN_FREQ = 50
 OUTPUT_FREQ = 50
 
 print('加载进度')
-agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
-# agent.load("./checkpoint/temp_dynamic_model/1400") # 加载算法训练进度
+# agent.load("./checkpoint/dynamic_model") # 加载算法训练进度
+agent.load("./checkpoint/temp_dynamic_model/2300") # 加载算法训练进度
 
 
 print('开始训练...')
@@ -262,8 +262,8 @@ for episode in range(MAX_EPISODE):
         env.plot(f"./output/out{episode}.png")
     # 储存进度
     if episode % 50 == 0: 
-        # agent.save("./checkpoint/dynamic_model")
-        agent.save(f"./checkpoint/temp_dynamic_model/{episode}")
+        agent.save("./checkpoint/dynamic_model")
+        # agent.save(f"./checkpoint/temp_dynamic_model/{episode}")
         print('暂存')
         print('累计成功次数',sc)
 #end for
