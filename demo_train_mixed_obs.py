@@ -212,7 +212,7 @@ TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S/}".format(datetime.now())
 train_log_dir = './tb_log/' + TIMESTAMP
 log = SummaryWriter(log_dir = train_log_dir) 
 
-MAX_EPISODE = 4001
+MAX_EPISODE = 2001
 LEARN_FREQ = 50
 OUTPUT_FREQ = 50
 
@@ -261,7 +261,7 @@ for episode in range(MAX_EPISODE):
     if episode % OUTPUT_FREQ == 0:
         env.plot(f"./output/out{episode}.png")
     # 储存进度
-    if episode % 50 == 0: 
+    if episode % 25 == 0: 
         agent.save("./checkpoint/dynamic_model")
         # agent.save(f"./checkpoint/temp_dynamic_model/{episode}")
         print('暂存')
