@@ -28,16 +28,19 @@ class MAP:
     size = [[-13.0, -13.0], [13.0, 13.0]] # x, z最小值; x, z最大值
     start_pos = [-10, -5]                   # 起点坐标
     end_pos = [2.5, 9]                    # 终点坐标
-    obstacles = [                         # 障碍物, 要求为 geo.Polygon 或 带buffer的 geo.Point/geo.LineString
+    obstacles = [                         # 障碍物列表
+        # 圆形
         geo.Point(-3, 3.5).buffer(3.5),
         geo.Point(5, 2.5).buffer(3),
         geo.Point(-6, -5).buffer(3),
         geo.Point(6, -5).buffer(3),
         
+        # 多边形
         geo.Polygon([(-10, 0), (-10, 5), (-7.5, 5), (-7.5, 0)]),
         geo.Polygon([(2, 8), (2, 10), (10, 10), (10, 8)]),
         geo.Polygon([(-1, -10), (-1, -6), (1, -4), (1, -10)]),
         
+        # 四周围墙
         geo.Polygon([(-14, -14), (-13, -14), (-13, 14), (-14, 14)]),
         geo.Polygon([(14, -14), (13, -14), (13, 14), (14, 14)]),
         geo.Polygon([(-14, 13), (-14, 14), (14, 14), (14, 13)]),
@@ -268,7 +271,7 @@ class DynamicPathPlanning(gym.Env):
         d_min = min([*point1[point1>-0.5], np.inf])
         if d_min <= D_BUFF:
             rew += d_min/D_BUFF - 1 # -1~0
-        # 3.接近目标奖励 {-1.5, 2.5}
+        # 3.接近目标奖励 {-1.5, 2.8}
         D = self.deque_vector[-1][0]
         rew += 2.8 if D < self.D_last else -1.5
         # 4.速度保持奖励 [-1, 0]
