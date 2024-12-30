@@ -106,7 +106,7 @@ SCAN_ANGLE = 128 # 扫描范围(单位°)
 SCAN_NUM = 128   # 扫描点个数
 SCAN_CEN = 40    # 中心区域开始位置(小于SCAN_NUM/2)
 # 距离设置
-D_SAFE = 0.3 # 碰撞半径
+D_SAFE = 0.5 # 碰撞半径
 D_BUFF = 1.0 # 缓冲距离(大于D_SAFE)
 D_ERR = 0.6  # 目标误差距离
 # 序列观测长度
