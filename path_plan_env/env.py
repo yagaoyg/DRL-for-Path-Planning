@@ -622,7 +622,7 @@ class DynamicPathPlanning(gym.Env):
 class StaticPathPlanning(gym.Env):
     """从航点搜索的角度进行规划"""
 
-    def __init__(self, num_pos=6, max_search_steps=200, old_gym_style=True):
+    def __init__(self, num_pos=10, max_search_steps=200, old_gym_style=True):
         """
         Args:
             num_pos (int): 起点终点之间的航点个数. 默认6.
