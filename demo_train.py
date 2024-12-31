@@ -135,14 +135,14 @@ critic = SAC_Critic(
 agent = SAC_Agent(env)
 agent.set_buffer(buffer)
 agent.set_nn(actor, critic)
-agent.cuda(0)
+agent.cuda()
 # agent.cpu()
 
 
 
 '''训练LOOP''' 
-MAX_EPISODE = 2000
-agent.load("./checkpoint/static_model")
+MAX_EPISODE = 4000
+# agent.load("./checkpoint/static_model")
 print('加载')
 for episode in range(MAX_EPISODE):
     ## 重置回合奖励

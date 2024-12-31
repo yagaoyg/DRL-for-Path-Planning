@@ -27,7 +27,7 @@ __all__ = ["DynamicPathPlanning", "StaticPathPlanning", "NormalizedActionsWrappe
 class MAP:
     size = [[-13.0, -13.0], [13.0, 13.0]] # x, z最小值; x, z最大值
     start_pos = [-10, -5]                   # 起点坐标
-    end_pos = [2.5, 9]                    # 终点坐标
+    end_pos = [6, 11]                    # 终点坐标
     obstacles = [                         # 障碍物列表
         # 圆形
         geo.Point(-3, 3.5).buffer(3.5),
