@@ -207,12 +207,12 @@ warnings.filterwarnings("ignore", message=".*internal t.*")
 
 
 '''训练LOOP'''
-from torch.utils.tensorboard import SummaryWriter # TensorBoard, 启动!!!
+from torch.utils.tensorboard import SummaryWriter
 TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S/}".format(datetime.now())
 train_log_dir = './tb_log/' + TIMESTAMP
 log = SummaryWriter(log_dir = train_log_dir) 
 
-MAX_EPISODE = 6001
+MAX_EPISODE = 4001
 LEARN_FREQ = 50
 OUTPUT_FREQ = 50
 
@@ -227,11 +227,11 @@ print('开始训练...')
 sc = 0 
 
 for episode in range(MAX_EPISODE):
-    ## 重置回合奖励
+    # 重置回合奖励
     ep_reward = 0
-    ## 获取初始观测
+    # 获取初始观测
     obs = env.reset()
-    ## 进行一回合仿真
+    # 进行一回合仿真
     for steps in range(env.max_episode_steps):
         # 可视化
         # env.render()
@@ -251,7 +251,7 @@ for episode in range(MAX_EPISODE):
             break
         else:
             obs = deepcopy(next_obs)
-    #end for
+    
     ## 记录
     log.add_scalar('Return', ep_reward, episode)
     log.add_scalar('MeanReward', mean_reward, episode)
