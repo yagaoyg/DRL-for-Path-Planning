@@ -7,6 +7,7 @@
  @auther: HJ https://github.com/zhaohaojie1998
 """
 #
+import matplotlib.pyplot as plt
 
 # 1.环境实例化
 from path_plan_env import DynamicPathPlanning
@@ -28,7 +29,7 @@ for episode in range(MAX_EPISODE):
     ## 进行一回合仿真
     for steps in range(env.max_episode_steps):
         # 可视化
-        env.render()
+        # env.render()
         # 决策
         seq_points = obs['seq_points'].reshape(1, *obs['seq_points'].shape) # (1, seq_len, *points_shape, )
         seq_vector = obs['seq_vector'].reshape(1, *obs['seq_vector'].shape) # (1, seq_len, vector_dim, )
@@ -43,4 +44,5 @@ for episode in range(MAX_EPISODE):
         else:
             obs = deepcopy(next_obs)
     #end for
+    plt.pause(2)
 #end for
