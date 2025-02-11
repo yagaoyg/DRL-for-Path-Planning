@@ -185,9 +185,9 @@ class BaseBuffer:
 # Q网络
 class SAC_Critic(nn.Module):
     def __init__(self, encoder: nn.Module, q1_layer: nn.Module, q2_layer: nn.Module):
-        """设置SAC的Critic\n
-        要求encoder输入为obs, 输出为 (batch, dim) 的特征 x.\n
-        要求q1_layer和q2_layer输入为 (batch, dim + act_dim) 的拼接向量 cat[x, a], 输出为 (batch, 1) 的 Q.\n
+        """设置SAC的Q网络
+        要求encoder输入为obs, 输出为 (batch, dim) 的特征 x.
+        要求q1_layer和q2_layer输入为 (batch, dim + act_dim) 的拼接向量 cat[x, a], 输出为 (batch, 1) 的 Q.
         """
         super().__init__()
         self.encoder_layer = deepcopy(encoder)
@@ -206,7 +206,7 @@ class SAC_Critic(nn.Module):
 # PI网络
 class SAC_Actor(nn.Module):
     def __init__(self, encoder: nn.Module, mu_layer: nn.Module, log_std_layer: nn.Module, log_std_max=2.0, log_std_min=-20.0):
-        """设置SAC的Actor\n
+        """设置SAC的PI网络
         要求encoder输入为obs, 输出为 (batch, dim) 的特征 x.\n
         要求log_std_layer和mu_layer输入为 x, 输出为 (batch, act_dim) 的对数标准差和均值.\n
         """
@@ -524,13 +524,13 @@ class SAC_Agent:
         
     # 4.决策模块接口
     def state_to_tensor(self, state: Obs) -> ObsBatch:
-        """状态升维并转换成Tensor"""
+        # 将状态升维成张量
         return self.buffer.state_to_tensor(state, use_rnn=False) # (1, *state_shape) tensor GPU
     
     def select_action(self, state: Obs, *, deterministic=False, **kwargs) -> np.ndarray:
-        """选择动作 -> [-1, 1]"""
         assert self.__set_nn, "未设置神经网络!"
         state = self.state_to_tensor(state)
+        # 将张量送入Actor网络
         return self.actor.act(state, deterministic) # (act_dim, ) ndarray
     
     def random_action(self) -> np.ndarray:

@@ -26,23 +26,47 @@ __all__ = ["DynamicPathPlanning", "StaticPathPlanning", "NormalizedActionsWrappe
 #----------------------------- ↓↓↓↓↓ 地图设置 ↓↓↓↓↓ ------------------------------#
 class MAP:
     size = [[-13.0, -13.0], [13.0, 13.0]] # x, z最小值; x, z最大值
+    # size = [[-10.0, -10.0], [10.0, 10.0]] # x, z最小值; x, z最大值
     start_pos = [-10, -5]                   # 起点坐标
-    end_pos = [2.5, 9]                    # 终点坐标
-    obstacles = [                         # 障碍物, 要求为 geo.Polygon 或 带buffer的 geo.Point/geo.LineString
+    end_pos = [6, 11]                    # 终点坐标
+    obstacles = [                         # 障碍物列表
+        # 圆形
         geo.Point(-3, 3.5).buffer(3.5),
         geo.Point(5, 2.5).buffer(3),
         geo.Point(-6, -5).buffer(3),
         geo.Point(6, -5).buffer(3),
         
+        # 多边形
         geo.Polygon([(-10, 0), (-10, 5), (-7.5, 5), (-7.5, 0)]),
         geo.Polygon([(2, 8), (2, 10), (10, 10), (10, 8)]),
         geo.Polygon([(-1, -10), (-1, -6), (1, -4), (1, -10)]),
         
+        # 四周围墙
         geo.Polygon([(-14, -14), (-13, -14), (-13, 14), (-14, 14)]),
         geo.Polygon([(14, -14), (13, -14), (13, 14), (14, 14)]),
         geo.Polygon([(-14, 13), (-14, 14), (14, 14), (14, 13)]),
         geo.Polygon([(-14, -13), (-14, -14), (14, -14), (14, -13)]),
     ]
+    
+    # obstacles = [                         # 障碍物列表
+    #     # 圆形
+    #     geo.Point(-1.5, 0).buffer(3),
+    #     geo.Point(7, -7).buffer(2.5),
+    #     geo.Point(5, 5).buffer(1.5),
+        
+    #     # 多边形
+    #     geo.Polygon([(-10, 10), (-10, 0), (-7, -5), (-7, 10)]),
+    #     geo.Polygon([(-1, 9), (-1, 11), (9, 11), (9, 7),(7,7),(7,9)]),
+    #     geo.Polygon([(7, 2), (11, 2), (11, -2), (7, -2)]),
+    #     geo.Polygon([(-8,-9),(-5,-9),(-5,-7),(-8,-7)]),
+    #     geo.Polygon([(-1,-8),(1,-8),(1,-13),(-1,-13)]),
+        
+    #     # 四周围墙
+    #     geo.Polygon([(-14, -14), (-13, -14), (-13, 14), (-14, 14)]),
+    #     geo.Polygon([(14, -14), (13, -14), (13, 14), (14, 14)]),
+    #     geo.Polygon([(-14, 13), (-14, 14), (14, 14), (14, 13)]),
+    #     geo.Polygon([(-14, -13), (-14, -14), (14, -14), (14, -13)]),
+    # ]
 
     @classmethod
     def show(cls):
@@ -99,11 +123,11 @@ CTRL_LOW = [-0.02, -0.005] # 切向过载 + 速度滚转角(单位rad/s)
 CTRL_HIGH = [0.02, 0.005]  # 切向过载 + 速度滚转角(单位rad/s)
 # 雷达设置
 SCAN_RANGE = 3 # 扫描距离
-SCAN_ANGLE = 128 # 扫描范围(单位deg)
+SCAN_ANGLE = 128 # 扫描范围(单位°)
 SCAN_NUM = 128   # 扫描点个数
-SCAN_CEN = 40    # 中心区域index开始位置(小于SCAN_NUM/2)
+SCAN_CEN = 40    # 中心区域开始位置(小于SCAN_NUM/2)
 # 距离设置
-D_SAFE = 0.3 # 碰撞半径
+D_SAFE = 0.5 # 碰撞半径
 D_BUFF = 1.0 # 缓冲距离(大于D_SAFE)
 D_ERR = 0.6  # 目标误差距离
 # 序列观测长度
@@ -268,7 +292,7 @@ class DynamicPathPlanning(gym.Env):
         d_min = min([*point1[point1>-0.5], np.inf])
         if d_min <= D_BUFF:
             rew += d_min/D_BUFF - 1 # -1~0
-        # 3.接近目标奖励 {-1.5, 2.5}
+        # 3.接近目标奖励 {-1.5, 2.8}
         D = self.deque_vector[-1][0]
         rew += 2.8 if D < self.D_last else -1.5
         # 4.速度保持奖励 [-1, 0]
@@ -619,7 +643,7 @@ class DynamicPathPlanning(gym.Env):
 class StaticPathPlanning(gym.Env):
     """从航点搜索的角度进行规划"""
 
-    def __init__(self, num_pos=6, max_search_steps=200, old_gym_style=True):
+    def __init__(self, num_pos=10, max_search_steps=200, old_gym_style=True):
         """
         Args:
             num_pos (int): 起点终点之间的航点个数. 默认6.
